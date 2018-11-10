@@ -7,7 +7,7 @@
  */
 function init(gamestate, constants, canvas, ctx) {
   // TODO: Edit
-  console.log('> Init');
+  // console.log('> Init');
   canvas.style.backgroundColor = '#ddd';
   gamestate.quit = false;
   gamestate.stopping = false;
@@ -28,7 +28,7 @@ function init(gamestate, constants, canvas, ctx) {
  */
 function render(gamestate, constants, canvas, ctx) {
   // TODO: Edit
-  console.log('> Render');
+  // console.log('> Render');
   // Drawing
   ctx.beginPath();
   for (let i = gamestate.drawed.length - 1; i >= 0; i--) {
@@ -43,7 +43,6 @@ function render(gamestate, constants, canvas, ctx) {
   constants.width = canvas.width;
   constants.height = canvas.height;
   // Draw clear sign
-  console.log(canvas.width + ' ' + canvas.height);
   ctx.drawImage(constants.clearimg, canvas.width - 50, 0, 50, 50);
   // Mouse Center
   ctx.beginPath();
@@ -67,7 +66,7 @@ function render(gamestate, constants, canvas, ctx) {
  */
 function next(gamestate, constants) {
   // TODO: Edit
-  console.log('> Next');
+  // console.log('> Next');
   return false;
 }
 /*
@@ -80,7 +79,7 @@ function next(gamestate, constants) {
  */
 function onmove(move, gamestate, constants, triggerEvent) {
   // TODO: Edit
-  console.log('> onMove to ' + move.x + ', ' + move.y + ' with delta ' + move.deltaX + ', ' + move.deltaY + '; touch? ' + move.touch);
+  // console.log('> onMove to ' + move.x + ', ' + move.y + ' with delta ' + move.deltaX + ', ' + move.deltaY + '; touch? ' + move.touch);
   gamestate.x = move.x;
   gamestate.y = move.y;
   gamestate.dx = move.deltaX;
@@ -111,7 +110,7 @@ function onmove(move, gamestate, constants, triggerEvent) {
  */
 function onkey(key, gamestate, constants, triggerEvent) {
   // TODO: Edit
-  console.log('> onKey with key ' + key);
+  // console.log('> onKey with key ' + key);
   switch (key) {
     case 'q':
       if (gamestate.stopping) {
@@ -133,7 +132,7 @@ function onkey(key, gamestate, constants, triggerEvent) {
  */
 function stop(gamestate, constants) {
   // TODO: Edit
-  console.log('> Stop');
+  // console.log('> Stop');
   return gamestate.quit;
 }
 

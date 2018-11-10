@@ -17,6 +17,8 @@
         isRunning: false,
         /* update on stand-by to be rendered */
         hasUpdate: true,
+        /* When the system has triggered fullscreen from an event */
+        isFullscreen: false
       },
       settings: {
         /* updates per seconds */
@@ -74,8 +76,9 @@
               game.game.status.hasUpdate = true;
           }
         }
-        if (game.game.settings.fullscreen) {
+        if (game.game.settings.fullscreen && !game.game.status.fullscreen) {
           game.fullscreen(true);
+          game.game.status.fullscreen = true;
         }
       },
       /*
@@ -84,9 +87,6 @@
       touchend: function (e) {
         game.data.touchmove.x = false;
         game.data.touchmove.y = false;
-        if (game.game.settings.fullscreen) {
-          game.fullscreen(true);
-        }
       },
       /*
        * Handler for touchmove
@@ -106,18 +106,17 @@
         }
         game.data.touchmove.x = e.touches[0].pageX;
         game.data.touchmove.y = e.touches[0].pageY;
-        if (game.game.settings.fullscreen) {
-          game.fullscreen(true);
-        }
       },
       /*
        * Handler for mousedown
        */
       mousedown: function (e) {
         game.data.mouse.touch = true;
-        if (game.game.settings.fullscreen) {
+        if (game.game.settings.fullscreen && !game.game.status.fullscreen) {
           game.fullscreen(true);
+          game.game.status.fullscreen = true;
         }
+        game.utils.mousemove(e);
       },
       /*
        * Handler for mouseup
@@ -172,6 +171,15 @@
           game.pointers.timers.render = setTimeout(game.utils.render, game.game.settings.canvasupdate);
         }
       },
+      /*
+       * Handles a resize event
+       */
+      resize: function (e) {
+        if (game.game.status.isRunning) {
+          game.game.status.hasUpdate = true;
+          game.utils.render();
+        }
+      }
     },
     /*
      * Sets up the game enviroment
@@ -214,6 +222,8 @@
         game.pointers.canvas.canvas.addEventListener('touchend', game.utils.touchend);
         game.pointers.canvas.canvas.addEventListener('mousedown', game.utils.mousedown);
         game.pointers.canvas.canvas.addEventListener('mouseup', game.utils.mouseup);
+        // Try resize
+        window.addEventListener('resize', game.utils.resize);
       }
       // Is ready
       game.game.status.isSetup = true;
