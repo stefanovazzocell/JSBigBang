@@ -26,7 +26,11 @@
         /* canvas update speed */
         canvasupdate: 0,
         /* should the game be fullscreen */
-        fullscreen: false
+        fullscreen: false,
+        moveon: {
+          /* Should return orientation as an moveevent? */
+          orientation: true
+        }
       },
       fn: {
         /* Render function */
@@ -98,7 +102,8 @@
             y: e.touches[0].pageY,
             deltaX: (game.data.touchmove.x === false ? 0 : e.touches[0].pageX - game.data.touchmove.x),
             deltaY: (game.data.touchmove.y === false ? 0 : e.touches[0].pageY - game.data.touchmove.y),
-            touch: true
+            touch: true,
+            isGyro: false
           }
           if (game.game.fn.onmove(move, game.game.gamestate, game.game.constants, e) !== false) {
               game.game.status.hasUpdate = true;
@@ -134,7 +139,8 @@
             y: e.y,
             deltaX: e.movementX,
             deltaY: e.movementY,
-            touch: game.data.mouse.touch
+            touch: game.data.mouse.touch,
+            isGyro: false
           }
           if (game.game.fn.onmove(move, game.game.gamestate, game.game.constants, e) !== false) {
               game.game.status.hasUpdate = true;
@@ -172,6 +178,26 @@
         }
       },
       /*
+       * Handles orientation changes
+       */
+      orientation: function (e) {
+        console.error(e.gamma);
+        if (game.game.status.isRunning && game.game.settings.moveon.orientation) {
+          let movesize = Math.min(game.pointers.canvas.ctx.canvas.width, game.pointers.canvas.ctx.canvas.height);
+          let move = {
+            x: game.pointers.canvas.ctx.canvas.width / 2,
+            y: game.pointers.canvas.ctx.canvas.height / 2,
+            deltaX: ((e.gamma % 90) / 90) * movesize,
+            deltaY: ((e.beta % 90) / 90) * movesize,
+            touch: false,
+            isGyro: true
+          }
+          if (game.game.fn.onmove(move, game.game.gamestate, game.game.constants, e) !== false) {
+              game.game.status.hasUpdate = true;
+          }
+        }
+      },
+      /*
        * Handles a resize event
        */
       resize: function (e) {
@@ -202,6 +228,7 @@
       if (constants !== null) game.game.constants = constants;
       // Check settings
       if (settings.fullscreen === true) game.game.settings.fullscreen = true;
+      if (settings.gyro === true) game.game.settings.moveon.orientation = true;
       // Copy functions
       if (init !== null) game.game.fn.init = init;
       if (render !== null) game.game.fn.render = render;
@@ -222,7 +249,7 @@
         game.pointers.canvas.canvas.addEventListener('touchend', game.utils.touchend);
         game.pointers.canvas.canvas.addEventListener('mousedown', game.utils.mousedown);
         game.pointers.canvas.canvas.addEventListener('mouseup', game.utils.mouseup);
-        // Try resize
+        window.addEventListener('deviceorientation', game.utils.orientation, true);
         window.addEventListener('resize', game.utils.resize);
       }
       // Is ready

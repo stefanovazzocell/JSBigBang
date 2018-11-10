@@ -18,6 +18,8 @@ function init(gamestate, constants, canvas, ctx) {
   constants.width = canvas.width;
   constants.height = canvas.height;
   gamestate.drawed = [];
+  gamestate.gx = 0;
+  gamestate.gy = 0;
 }
 /*
  * Renders the game
@@ -39,6 +41,13 @@ function render(gamestate, constants, canvas, ctx) {
   ctx.fillStyle = "#aaa";
   ctx.fill();
   ctx.stroke();
+  // Gyro
+  if (gamestate.gx !== 0 && gamestate.gy !== 0) {
+    ctx.beginPath();
+    ctx.rect(gamestate.gx - 5, gamestate.gy - 5, 10, 10);
+    ctx.fillStyle = "blue";
+    ctx.fill();
+  }
   // Update constants
   constants.width = canvas.width;
   constants.height = canvas.height;
@@ -80,22 +89,28 @@ function next(gamestate, constants) {
 function onmove(move, gamestate, constants, triggerEvent) {
   // TODO: Edit
   // console.log('> onMove to ' + move.x + ', ' + move.y + ' with delta ' + move.deltaX + ', ' + move.deltaY + '; touch? ' + move.touch);
-  gamestate.x = move.x;
-  gamestate.y = move.y;
-  gamestate.dx = move.deltaX;
-  gamestate.dy = move.deltaY;
-  let hasMoved = (move.deltaX !== 0 && move.deltaY !== 0);
-  if (move.touch) {
-    gamestate.drawed.push({
-      x: move.x,
-      y: move.y,
-      sx: (hasMoved ? move.x - move.deltaX : move.x),
-      sy: (hasMoved ? move.y - move.deltaY : move.y)
-    });
-  }
-  if (move.touch === true && true && true) {
-    if ((move.x > (constants.width - 50)) && (move.y < 50)) {
-      gamestate.drawed = [];
+  if (move.isGyro) {
+    console.log(move.deltaX + ' ' + move.deltaY);
+    gamestate.gx = move.x + move.deltaX;
+    gamestate.gy = move.y + move.deltaY;
+  } else {
+    gamestate.x = move.x;
+    gamestate.y = move.y;
+    gamestate.dx = move.deltaX;
+    gamestate.dy = move.deltaY;
+    let hasMoved = (move.deltaX !== 0 && move.deltaY !== 0);
+    if (move.touch) {
+      gamestate.drawed.push({
+        x: move.x,
+        y: move.y,
+        sx: (hasMoved ? move.x - move.deltaX : move.x),
+        sy: (hasMoved ? move.y - move.deltaY : move.y)
+      });
+    }
+    if (move.touch === true && true && true) {
+      if ((move.x > (constants.width - 50)) && (move.y < 50)) {
+        gamestate.drawed = [];
+      }
     }
   }
   return true;
@@ -139,6 +154,6 @@ function stop(gamestate, constants) {
 clear = new Image();
 clear.src = 'clear.png';
 clear.onload = function(){
-  game.setup(1, {}, { mult: 1.2, clearimg: clear }, init, render, next, onmove, onkey, stop, { fullscreen: true });
+  game.setup(1, {}, { mult: 1.2, clearimg: clear }, init, render, next, onmove, onkey, stop, { fullscreen: true, gyro: true });
   game.start();
 }
