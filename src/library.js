@@ -17,8 +17,6 @@
         isRunning: false,
         /* update on stand-by to be rendered */
         hasUpdate: true,
-        /* is the game fullscreen */
-        fullscreen: false
       },
       settings: {
         /* updates per seconds */
@@ -44,9 +42,12 @@
       }
     },
     data: {
-      mousemove: {
+      touchmove: {
         x: false,
         y: false
+      },
+      mouse: {
+        touch: false
       }
     },
     pointers: {
@@ -73,13 +74,19 @@
               game.game.status.hasUpdate = true;
           }
         }
+        if (game.game.settings.fullscreen) {
+          game.fullscreen(true);
+        }
       },
       /*
        * Handler for touchend
        */
       touchend: function (e) {
-        game.data.mousemove.x = false;
-        game.data.mousemove.y = false;
+        game.data.touchmove.x = false;
+        game.data.touchmove.y = false;
+        if (game.game.settings.fullscreen) {
+          game.fullscreen(true);
+        }
       },
       /*
        * Handler for touchmove
@@ -89,15 +96,34 @@
           let move = {
             x: e.touches[0].pageX,
             y: e.touches[0].pageY,
-            deltaX: (game.data.mousemove.x === false ? 0 : e.touches[0].pageX - game.data.mousemove.x),
-            deltaY: (game.data.mousemove.y === false ? 0 : e.touches[0].pageY - game.data.mousemove.y)
+            deltaX: (game.data.touchmove.x === false ? 0 : e.touches[0].pageX - game.data.touchmove.x),
+            deltaY: (game.data.touchmove.y === false ? 0 : e.touches[0].pageY - game.data.touchmove.y),
+            touch: true
           }
           if (game.game.fn.onmove(move, game.game.gamestate, game.game.constants, e) !== false) {
               game.game.status.hasUpdate = true;
           }
         }
-        game.data.mousemove.x = e.touches[0].pageX;
-        game.data.mousemove.y = e.touches[0].pageY;
+        game.data.touchmove.x = e.touches[0].pageX;
+        game.data.touchmove.y = e.touches[0].pageY;
+        if (game.game.settings.fullscreen) {
+          game.fullscreen(true);
+        }
+      },
+      /*
+       * Handler for mousedown
+       */
+      mousedown: function (e) {
+        game.data.mouse.touch = true;
+        if (game.game.settings.fullscreen) {
+          game.fullscreen(true);
+        }
+      },
+      /*
+       * Handler for mouseup
+       */
+      mouseup: function (e) {
+        game.data.mouse.touch = false;
       },
       /*
        * Handler for mousemove
@@ -108,7 +134,8 @@
             x: e.x,
             y: e.y,
             deltaX: e.movementX,
-            deltaY: e.movementY
+            deltaY: e.movementY,
+            touch: game.data.mouse.touch
           }
           if (game.game.fn.onmove(move, game.game.gamestate, game.game.constants, e) !== false) {
               game.game.status.hasUpdate = true;
@@ -185,6 +212,8 @@
         game.pointers.canvas.canvas.addEventListener('mousemove', game.utils.mousemove);
         game.pointers.canvas.canvas.addEventListener('touchmove', game.utils.touchmove);
         game.pointers.canvas.canvas.addEventListener('touchend', game.utils.touchend);
+        game.pointers.canvas.canvas.addEventListener('mousedown', game.utils.mousedown);
+        game.pointers.canvas.canvas.addEventListener('mouseup', game.utils.mouseup);
       }
       // Is ready
       game.game.status.isSetup = true;
@@ -199,21 +228,9 @@
         console.warn('You must setup the game before running it');
         return false;
       }
-      // Check if needs fullscreen (needs user gesture)
+      // Tries to enter fullscreen
       if (game.game.settings.fullscreen) {
-        if (game.pointers.canvas.canvas.requestFullscreen) {
-          game.pointers.canvas.canvas.requestFullscreen();
-          game.game.status.fullscreen = true;
-        } else if (game.pointers.canvas.canvas.mozRequestFullScreen) {
-          game.pointers.canvas.canvas.mozRequestFullScreen();
-          game.game.status.fullscreen = true;
-        } else if (game.pointers.canvas.canvas.webkitRequestFullscreen) {
-          game.pointers.canvas.canvas.webkitRequestFullscreen();
-          game.game.status.fullscreen = true;
-        } else if (game.pointers.canvas.canvas.msRequestFullscreen) {
-          game.pointers.canvas.canvas.msRequestFullscreen();
-          game.game.status.fullscreen = true;
-        }
+        game.fullscreen(true);
       }
       // Initializes game
       if (game.game.fn.init !== null) {
@@ -241,19 +258,34 @@
       clearInterval(game.pointers.timers.update);
       clearTimeout(game.pointers.timers.render);
       // Exit fullscreen
-      if (game.game.status.fullscreen) {
+      if (game.game.settings.fullscreen) {
+        game.fullscreen(false);
+      }
+    },
+    /*
+     * Enables or disables fullscreen
+     * @param {boolean} [enable=true]
+     */
+    fullscreen: function (enable = true) {
+      if (enable) { // game.game.status.fullscreen
+        if (game.pointers.canvas.canvas.requestFullscreen) {
+          game.pointers.canvas.canvas.requestFullscreen();
+        } else if (game.pointers.canvas.canvas.mozRequestFullScreen) {
+          game.pointers.canvas.canvas.mozRequestFullScreen();
+        } else if (game.pointers.canvas.canvas.webkitRequestFullscreen) {
+          game.pointers.canvas.canvas.webkitRequestFullscreen();
+        } else if (game.pointers.canvas.canvas.msRequestFullscreen) {
+          game.pointers.canvas.canvas.msRequestFullscreen();
+        }
+      } else {
         if (document.exitFullscreen) {
           document.exitFullscreen();
-          game.game.status.fullscreen = false;
         } else if (document.mozCancelFullScreen) {
           document.mozCancelFullScreen();
-          game.game.status.fullscreen = false;
         } else if (document.webkitExitFullscreen) {
           document.webkitExitFullscreen();
-          game.game.status.fullscreen = false;
         } else if (document.msExitFullscreen) {
           document.msExitFullscreen();
-          game.game.status.fullscreen = false;
         }
       }
     }
