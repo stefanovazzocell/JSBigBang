@@ -181,14 +181,14 @@
        * Handles orientation changes
        */
       orientation: function (e) {
-        console.error(e.gamma);
         if (game.game.status.isRunning && game.game.settings.moveon.orientation) {
+          let isLandscape = window.matchMedia("(orientation: landscape)").matches;
           let movesize = Math.min(game.pointers.canvas.ctx.canvas.width, game.pointers.canvas.ctx.canvas.height);
           let move = {
             x: game.pointers.canvas.ctx.canvas.width / 2,
             y: game.pointers.canvas.ctx.canvas.height / 2,
-            deltaX: ((e.gamma % 90) / 90) * movesize,
-            deltaY: ((e.beta % 90) / 90) * movesize,
+            deltaX: (((isLandscape ? e.beta : e.gamma) % 90) / 90) * movesize,
+            deltaY: (((isLandscape ? e.gamma : e.beta) % 90) / 90) * movesize,
             touch: false,
             isGyro: true
           }
