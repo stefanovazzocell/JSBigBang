@@ -15,6 +15,7 @@
     gamestate.y = 100;
     gamestate.dx = 0;
     gamestate.dy = 0;
+    gamestate.drawed = [];
   }
   /*
    * Renders the game
@@ -26,10 +27,22 @@
   function render(gamestate, constants, canvas, ctx) {
     // TODO: Edit
     console.log('> Render');
+    // Drawing
+    ctx.beginPath();
+    for (let i = gamestate.drawed.length - 1; i >= 0; i--) {
+      ctx.rect(gamestate.drawed[i].x - 1, gamestate.drawed[i].y - 1, 2, 2);
+      ctx.moveTo(gamestate.drawed[i].sx, gamestate.drawed[i].sy);
+      ctx.lineTo(gamestate.drawed[i].x, gamestate.drawed[i].y);
+    }
+    ctx.fillStyle = "#aaa";
+    ctx.fill();
+    ctx.stroke();
+    // Mouse Center
     ctx.beginPath();
     ctx.rect(gamestate.x - 2.5, gamestate.y - 2.5, 5, 5);
     ctx.fillStyle = "red";
     ctx.fill();
+    // Tail
     ctx.beginPath();
     ctx.moveTo(gamestate.x, gamestate.y);
     ctx.lineTo(gamestate.x - gamestate.dx * constants.mult, gamestate.y - gamestate.dy * constants.mult);
@@ -64,6 +77,12 @@
     gamestate.y = move.y;
     gamestate.dx = move.deltaX;
     gamestate.dy = move.deltaY;
+    gamestate.drawed.push({
+      x: move.x,
+      y: move.y,
+      sx: (move.deltaX === 0 ? move.x : move.x - move.deltaX),
+      sy: (move.deltaX === 0 ? move.y : move.y - move.deltaY)
+    });
     return true;
   }
   /*

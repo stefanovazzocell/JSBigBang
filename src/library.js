@@ -45,8 +45,8 @@
     },
     data: {
       mousemove: {
-        x: 0,
-        y: 0
+        x: false,
+        y: false
       }
     },
     pointers: {
@@ -75,6 +75,13 @@
         }
       },
       /*
+       * Handler for touchend
+       */
+      touchend: function (e) {
+        game.data.mousemove.x = false;
+        game.data.mousemove.y = false;
+      },
+      /*
        * Handler for touchmove
        */
       touchmove: function (e) {
@@ -82,8 +89,8 @@
           let move = {
             x: e.touches[0].pageX,
             y: e.touches[0].pageY,
-            deltaX: e.touches[0].pageX - game.data.mousemove.x,
-            deltaY: e.touches[0].pageY - game.data.mousemove.y
+            deltaX: (game.data.mousemove.x === false ? 0 : e.touches[0].pageX - game.data.mousemove.x),
+            deltaY: (game.data.mousemove.y === false ? 0 : e.touches[0].pageY - game.data.mousemove.y)
           }
           if (game.game.fn.onmove(move, game.game.gamestate, game.game.constants, e) !== false) {
               game.game.status.hasUpdate = true;
@@ -177,6 +184,7 @@
       if (game.game.fn.onmove !== null) {
         game.pointers.canvas.canvas.addEventListener('mousemove', game.utils.mousemove);
         game.pointers.canvas.canvas.addEventListener('touchmove', game.utils.touchmove);
+        game.pointers.canvas.canvas.addEventListener('touchend', game.utils.touchend);
       }
       // Is ready
       game.game.status.isSetup = true;
