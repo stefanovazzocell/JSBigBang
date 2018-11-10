@@ -182,7 +182,7 @@
        */
       orientation: function (e) {
         if (game.game.status.isRunning && game.game.settings.moveon.orientation) {
-          let isLandscape = window.matchMedia("(orientation: landscape)").matches;
+          let isLandscape = window.orientation === 90 || window.orientation === 180;
           let movesize = Math.min(game.pointers.canvas.ctx.canvas.width, game.pointers.canvas.ctx.canvas.height);
           let move = {
             x: game.pointers.canvas.ctx.canvas.width / 2,
