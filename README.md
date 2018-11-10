@@ -10,4 +10,4 @@ At this point this is just a rapid development project. The testing is done by m
 
 ## Peview?
 
-You can test a simple preview at [This link](https://stefanovazzocell.github.io/JSBigBang/src/)
+You can test a simple preview at [This link](https://stefanovazzocell.github.io/JSBigBang/src/game.html)
